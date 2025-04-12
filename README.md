@@ -5,10 +5,10 @@ A simple tool to calculate the gain or loss in US dollars for Russian Global Dep
 ## How to Use
 
 1. **Download**:
-   - Download the `index.html` file from this repository.
+   - Download the `drconvertor.html` file from this repository.
 
 2. **Open**:
-   - Double-click `index.html` to open it in your web browser (e.g., Chrome, Firefox). No internet or server needed.
+   - Double-click `drconvertor.html` to open it in your web browser (e.g., Chrome, Firefox). No internet or server needed.
 
 3. **Enter Details**:
    - **Company**: Select a company (e.g., Gazprom) or "Other" for a custom ratio.
