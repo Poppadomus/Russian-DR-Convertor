@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDR/DR Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .calculator {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+        }
+        #calculateBtn {
+            background-color: #28a745;
+        }
+        #calculateBtn:hover {
+            background-color: #218838;
+        }
+        #resetBtn {
+            background-color: #dc3545;
+        }
+        #resetBtn:hover {
+            background-color: #c82333;
+        }
+        #toggleDividendsBtn {
+            background-color: #007bff;
+            margin-bottom: 10px;
+        }
+        #toggleDividendsBtn:hover {
+            background-color: #0056b3;
+        }
+        #result, #error {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        #result {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        #error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .note, .quick-start {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 20px;
+        }
+        .quick-start h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .quick-start ol {
+            padding-left: 20px;
+        }
+        #customRatioContainer, #dividendInputs {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>GDR/DR Calculator</h1>
+    <div class="calculator">
+        <p>Calculate your gain or loss in US dollars from GDR/DR investments, with or without dividends.</p>
+        <div class="quick-start">
+            <h3>Quick Start Guide</h3>
+            <ol>
+                <li><strong>Choose your company</strong>: Select your investment (e.g., Gazprom) from the list. If it’s not there, pick “Other.”</li>
+                <li><strong>Enter number of GDRs/DRs</strong>: Type how many depositary receipts you own (e.g., 100).</li>
+                <li><strong>Enter buy price</strong>: Type what you paid for each GDR/DR in US dollars (e.g., $10.50).</li>
+                <li><strong>Enter sell price</strong>: Type the price per share in Russian rubles (e.g., 150). Check MOEX or ask your broker.</li>
+                <li><strong>Include dividends?</strong>: Click “Include Dividends” to add dividends, or skip for no dividends.</li>
+                <li><strong>Enter quarters (if dividends included)</strong>: Type how many quarters (e.g., 4 for a year).</li>
+                <li><strong>Enter dividends (if included)</strong>: Type the dividend per share in rubles for each quarter (e.g., 10 for Q1, 0 for Q2). Use 0 if none paid.</li>
+                <li><strong>Enter exchange rate</strong>: Type how many US dollars one Russian ruble equals (e.g., 0.012). Check sites like xe.com.</li>
+                <li><strong>Click calculate</strong>: See your gain or loss in dollars!</li>
+            </ol>
+        </div>
+        <form id="calculatorForm">
+            <label for="company">Select Company:</label>
+            <select id="company" onchange="toggleCustomRatio()">
+                <option value="4">Gazprom (1 GDR = 4 shares)</option>
+                <option value="1">Lukoil (1 GDR = 1 share)</option>
+                <option value="4">Sberbank (1 GDR = 4 shares)</option>
+                <option value="5">Gazprom Neft (1 GDR = 5 shares)</option>
+                <option value="5">Magnit (1 GDR = 5 shares)</option>
+                <option value="2">Mobile TeleSystems (1 GDR = 2 shares)</option>
+                <option value="100">RusHydro (1 GDR = 100 shares)</option>
+                <option value="2000">VTB Bank (1 GDR = 2,000 shares)</option>
+                <option value="5">LSR Group (1 GDR = 5 shares)</option>
+                <option value="500">Federal Grid Company (1 GDR = 500 shares)</option>
+                <option value="1">Rosneft (1 GDR = 1 share)</option>
+                <option value="100">Inter RAO (1 GDR = 100 shares)</option>
+                <option value="50">Rosseti (1 GDR = 50 shares)</option>
+                <option value="4">Cherkizovo (1 GDR = 4 shares)</option>
+                <option value="1">PIK Group (1 GDR = 1 share)</option>
+                <option value="custom">Other (Enter custom ratio)</option>
+            </select>
+
+            <div id="customRatioContainer">
+                <label for="customRatio">Custom Conversion Ratio (shares per GDR/DR):</label>
+                <input type="number" id="customRatio" min="0" step="0.01" placeholder="e.g., 4">
+            </div>
+
+            <label for="gdrCount">Number of GDRs/DRs:</label>
+            <input type="number" id="gdrCount" min="0" step="1" placeholder="e.g., 100" required>
+
+            <label for="buyPrice">Buy Price per GDR/DR (USD):</label>
+            <input type="number" id="buyPrice" min="0" step="0.01" placeholder="e.g., 10.50" required>
+
+            <label for="sellPrice">Sell Price per Share (RUB):</label>
+            <input type="number" id="sellPrice" min="0" step="0.01" placeholder="e.g., 150.00" required>
+
+            <button type="button" id="toggleDividendsBtn" onclick="toggleDividends()">Include Dividends</button>
+            <div id="dividendInputs">
+                <label for="quarters">Number of Quarters:</label>
+                <input type="number" id="quarters" min="1" step="1" placeholder="e.g., 4" oninput="updateDividendFields()">
+                <div id="dividendFields"></div>
+            </div>
+
+            <label for="exchangeRate">USD per RUB Exchange Rate (1 RUB = X USD):</label>
+            <input type="number" id="exchangeRate" min="0" step="0.0001" placeholder="e.g., 0.012" required>
+
+            <div class="button-container">
+                <button type="submit" id="calculateBtn">Calculate Result</button>
+                <button type="button" id="resetBtn">Reset</button>
+            </div>
+        </form>
+        <div id="result"></div>
+        <div id="error"></div>
+        <p class="note">
+            This calculator figures out your gain or loss in US dollars from depositary receipts (GDRs/DRs). It uses your buy price in dollars, sell price in rubles, and the exchange rate. If you include dividends, it adds them using company ratios to convert GDRs to shares. You can choose how many quarters to include, as dividends vary and many companies didn’t pay dividends for a while (e.g., 2022-2023). Enter 0 for quarters with no payments. Selling shares can be tough, especially for Inter RAO, Rosseti, and Federal Grid Company, due to strict rules. Fees or taxes may reduce your result. We can’t show prices or dividends automatically because of data limits. Check MOEX or your broker for ruble prices and dividends, and ask an expert for exact results.
+        </p>
+    </div>
+
+    <script>
+        let dividendsEnabled = false;
+
+        function toggleCustomRatio() {
+            const companySelect = document.getElementById('company');
+            const customRatioContainer = document.getElementById('customRatioContainer');
+            customRatioContainer.style.display = companySelect.value === 'custom' ? 'block' : 'none';
+        }
+
+        function toggleDividends() {
+            dividendsEnabled = !dividendsEnabled;
+            const dividendInputs = document.getElementById('dividendInputs');
+            const toggleBtn = document.getElementById('toggleDividendsBtn');
+            dividendInputs.style.display = dividendsEnabled ? 'block' : 'none';
+            toggleBtn.textContent = dividendsEnabled ? 'Exclude Dividends' : 'Include Dividends';
+            if (!dividendsEnabled) {
+                document.getElementById('quarters').value = '';
+                document.getElementById('dividendFields').innerHTML = '';
+            }
+        }
+
+        function updateDividendFields() {
+            const quarters = parseInt(document.getElementById('quarters').value) || 0;
+            const dividendFields = document.getElementById('dividendFields');
+            dividendFields.innerHTML = '';
+            if (quarters > 0 && quarters <= 12) {
+                for (let i = 1; i <= quarters; i++) {
+                    const label = document.createElement('label');
+                    label.setAttribute('for', `dividendQ${i}`);
+                    label.textContent = `Dividend per Share Q${i} (RUB):`;
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.id = `dividendQ${i}`;
+                    input.min = '0';
+                    input.step = '0.01';
+                    input.placeholder = 'e.g., 0.00';
+                    dividendFields.appendChild(label);
+                    dividendFields.appendChild(input);
+                }
+            }
+        }
+
+        document.getElementById('calculatorForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Get input values
+            const gdrCount = parseFloat(document.getElementById('gdrCount').value);
+            const buyPrice = parseFloat(document.getElementById('buyPrice').value);
+            const sellPrice = parseFloat(document.getElementById('sellPrice').value);
+            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value);
+            const companySelect = document.getElementById('company');
+            let conversionRatio = parseFloat(companySelect.value);
+            let totalDividendPerShare = 0;
+            let quarters = 0;
+            let dividendDetails = [];
+
+            // Handle custom ratio
+            if (companySelect.value === 'custom') {
+                conversionRatio = parseFloat(document.getElementById('customRatio').value);
+            }
+
+            // Handle dividends
+            if (dividendsEnabled) {
+                quarters = parseInt(document.getElementById('quarters').value) || 0;
+                for (let i = 1; i <= quarters; i++) {
+                    const dividend = parseFloat(document.getElementById(`dividendQ${i}`).value) || 0;
+                    totalDividendPerShare += dividend;
+                    dividendDetails.push(dividend);
+                }
+            }
+
+            // Get result and error elements
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+
+            // Reset display
+            resultDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            // Validate inputs
+            if (isNaN(gdrCount) || gdrCount < 0) {
+                errorDiv.textContent = 'Please enter a valid number of GDRs/DRs (0 or positive).';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            if (isNaN(conversionRatio) || conversionRatio <= 0) {
+                errorDiv.textContent = companySelect.value === 'custom' ? 
+                    'Please enter a valid custom conversion ratio (positive number).' : 
+                    'Please select a valid company or enter a custom ratio.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            if (isNaN(buyPrice) || buyPrice < 0) {
+                errorDiv.textContent = 'Please enter a valid buy price (0 or positive).';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            if (isNaN(sellPrice) || sellPrice < 0) {
+                errorDiv.textContent = 'Please enter a valid sell price (0 or positive).';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            if (dividendsEnabled) {
+                if (isNaN(quarters) || quarters < 1 || quarters > 12) {
+                    errorDiv.textContent = 'Please enter a valid number of quarters (1-12).';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                for (let i = 1; i <= quarters; i++) {
+                    const dividend = parseFloat(document.getElementById(`dividendQ${i}`).value);
+                    if ((isNaN(dividend) && document.getElementById(`dividendQ${i}`).value !== '') || dividend < 0) {
+                        errorDiv.textContent = `Please enter a valid dividend for Q${i} (0 or positive).`;
+                        errorDiv.style.display = 'block';
+                        return;
+                    }
+                }
+            }
+            if (isNaN(exchangeRate) || exchangeRate <= 0) {
+                errorDiv.textContent = 'Please enter a valid USD per RUB exchange rate (positive number).';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Calculate shares and result
+            const shares = gdrCount * conversionRatio;
+            const sellPricePerGDRInUSD = sellPrice * conversionRatio * exchangeRate;
+            const dividendPerGDRInUSD = totalDividendPerShare * conversionRatio * exchangeRate;
+            const result = ((sellPricePerGDRInUSD - buyPrice) + dividendPerGDRInUSD) * gdrCount;
+
+            // Display result
+            let dividendOutput = dividendsEnabled ? 
+                `Total Dividends: $${(dividendPerGDRInUSD * gdrCount).toFixed(2)} (${dividendDetails.map((d, i) => `Q${i+1}: ${d.toFixed(2)}`).join(', ')} RUB/share)` : 
+                'Dividends: Not included';
+            resultDiv.innerHTML = `
+                Profit/Loss: $${result.toFixed(2)}
+                ${result < 0 ? ' (Loss)' : ''}<br>
+                Shares: ${shares.toFixed(2)}<br>
+                ${dividendOutput}<br>
+                USD per RUB Exchange Rate: ${exchangeRate.toFixed(4)} (1 RUB = $${exchangeRate.toFixed(4)})
+            `;
+            resultDiv.style.display = 'block';
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            document.getElementById('calculatorForm').reset();
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            dividendsEnabled = false;
+            document.getElementById('dividendInputs').style.display = 'none';
+            document.getElementById('toggleDividendsBtn').textContent = 'Include Dividends';
+            document.getElementById('dividendFields').innerHTML = '';
+            toggleCustomRatio();
+        });
+    </script>
+</body>
+</html>
