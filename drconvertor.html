@@ -94,6 +94,42 @@
         #customRatioContainer, #dividendInputs {
             display: none;
         }
+        .copy-btn {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            vertical-align: middle;
+        }
+        .copy-btn:hover {
+            background-color: #0056b3;
+        }
+        .donation-area {
+            background-color: #fff3cd;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .donation-area p {
+            margin: 0 0 10px;
+            font-weight: bold;
+            color: #856404;
+        }
+        .btc-address {
+            font-family: monospace;
+            background-color: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -213,6 +249,15 @@
             }
         }
 
+        function copyToClipboard() {
+            const address = 'bc1q7ekuvqezshc0q2lvhsdcj04xkwmg80saq3dyh5';
+            navigator.clipboard.writeText(address).then(() => {
+                alert('Bitcoin address copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy address. Please copy it manually.');
+            });
+        }
+
         document.getElementById('calculatorForm').addEventListener('submit', function(event) {
             event.preventDefault();
             
@@ -309,7 +354,12 @@
                 ${result < 0 ? ' (Loss)' : ''}<br>
                 Shares: ${shares.toFixed(2)}<br>
                 ${dividendOutput}<br>
-                USD per RUB Exchange Rate: ${exchangeRate.toFixed(4)} (1 RUB = $${exchangeRate.toFixed(4)})
+                USD per RUB Exchange Rate: ${exchangeRate.toFixed(4)} (1 RUB = $${exchangeRate.toFixed(4)})<br>
+                <div class="donation-area">
+                    <p>This calculator is free to use! If it’s helped you make a profit, please consider sending a small Bitcoin tip to support a struggling open-source developer. 😊</p>
+                    <span class="btc-address">bc1q7ekuvqezshc0q2lvhsdcj04xkwmg80saq3dyh5</span>
+                    <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+                </div>
             `;
             resultDiv.style.display = 'block';
         });
