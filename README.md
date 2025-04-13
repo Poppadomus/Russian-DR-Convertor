@@ -1,6 +1,7 @@
 # GDR/ADR Calculator
 
 A simple open-source tool to calculate the gain or loss in US dollars for Russian Global Depositary Receipts (GDRs) or Depositary Receipts (ADRs), with optional dividend calculations.
+![image](https://github.com/user-attachments/assets/0b163903-0ed5-40b3-aeb6-50261e16bbf0)
 
 ## How to Use
 
