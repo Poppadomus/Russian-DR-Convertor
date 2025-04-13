@@ -1,6 +1,6 @@
 # GDR/DR Calculator
 
-A simple tool to calculate the gain or loss in US dollars for Russian Global Depositary Receipts (GDRs) or Depositary Receipts (DRs), with optional dividend calculations.
+A simple open-source tool to calculate the gain or loss in US dollars for Russian Global Depositary Receipts (GDRs) or Depositary Receipts (DRs), with optional dividend calculations.
 
 ## How to Use
 
